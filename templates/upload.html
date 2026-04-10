@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset - Smart Business Analyst</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fas fa-chart-line me-2"></i>Smart Business Analyst
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home me-1"></i>Home
+            </a>
+            <a href="/upload" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-upload me-1"></i>Upload
+            </a>
+            <a href="/history" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-history me-1"></i>History
+            </a>
+            <span class="text-white small">
+                <i class="fas fa-user me-1"></i>{{ username }}
+            </span>
+            <a href="/logout" class="btn btn-danger btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Upload Section -->
+<section class="upload-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="upload-card p-5">
+                    <h2 class="fw-bold text-center mb-2">Upload Your Dataset</h2>
+                    <p class="text-center text-muted mb-4">
+                        Supports CSV and Excel files (.csv, .xlsx, .xls)
+                    </p>
+
+                    <!-- Upload Area -->
+                    <div class="upload-area text-center p-5 mb-4" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                        <h5>Drag & Drop your file here</h5>
+                        <p class="text-muted">or</p>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" class="d-none">
+                        <button class="btn btn-primary px-4" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open me-2"></i>Browse File
+                        </button>
+                        <p class="text-muted small mt-3">Accepted: .csv, .xlsx, .xls</p>
+                    </div>
+
+                    <!-- File Info -->
+                    <div id="fileInfo" class="alert alert-info d-none">
+                        <i class="fas fa-file-alt me-2"></i>
+                        <span id="fileName"></span>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorMsg" class="alert alert-danger d-none">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span id="errorText"></span>
+                    </div>
+
+                    <!-- Analyze Button -->
+                    <div class="text-center">
+                        <button class="btn btn-success btn-lg px-5" id="analyzeBtn" onclick="analyzeData()" disabled>
+                            <i class="fas fa-magic me-2"></i>Analyze with AI
+                        </button>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="loadingDiv" class="text-center mt-4 d-none">
+                        <div class="spinner-border text-primary me-2" role="status"></div>
+                        <span id="loadingText">Agent 1: Cleaning data...</span>
+                    </div>
+                </div>
+
+                <!-- Sample Dataset Info -->
+                <div class="info-card p-4 mt-4">
+                    <h5 class="fw-bold"><i class="fas fa-info-circle me-2"></i>Dataset Requirements</h5>
+                    <p class="text-muted small mb-2">Your dataset should ideally contain these columns:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="small text-muted">
+                                <li>Date / Order Date</li>
+                                <li>Sales / Revenue</li>
+                                <li>Profit / Net Profit</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="small text-muted">
+                                <li>Region / Area</li>
+                                <li>Category / Product Type</li>
+                                <li>Any numeric columns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer text-center py-4">
+    <p class="mb-0">© 2025 Smart Business Analyst — Powered by Agentic AI</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('fileInput').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            document.getElementById('fileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            document.getElementById('fileInfo').classList.remove('d-none');
+            document.getElementById('analyzeBtn').disabled = false;
+            document.getElementById('errorMsg').classList.add('d-none');
+        }
+    });
+
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('fileInput').files = e.dataTransfer.files;
+            document.getElementById('fileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            document.getElementById('fileInfo').classList.remove('d-none');
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+    });
+
+    async function analyzeData() {
+        const fileInput = document.getElementById('fileInput');
+        if (!fileInput.files[0]) return;
+
+        const loadingMessages = [
+            "Agent 1: Cleaning data...",
+            "Agent 2: Training ML models...",
+            "Agent 2: Finding best model...",
+            "Agent 3: Generating recommendations...",
+            "Almost done! Preparing dashboard..."
+        ];
+
+        document.getElementById('loadingDiv').classList.remove('d-none');
+        document.getElementById('analyzeBtn').disabled = true;
+        document.getElementById('errorMsg').classList.add('d-none');
+
+        let msgIndex = 0;
+        const msgInterval = setInterval(() => {
+            if (msgIndex < loadingMessages.length) {
+                document.getElementById('loadingText').textContent = loadingMessages[msgIndex];
+                msgIndex++;
+            }
+        }, 1500);
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            clearInterval(msgInterval);
+
+            if (data.error) {
+                document.getElementById('errorText').textContent = data.error;
+                document.getElementById('errorMsg').classList.remove('d-none');
+                document.getElementById('loadingDiv').classList.add('d-none');
+                document.getElementById('analyzeBtn').disabled = false;
+                return;
+            }
+
+            localStorage.setItem('analysisResults', JSON.stringify(data));
+            window.location.href = '/dashboard';
+
+        } catch (error) {
+            clearInterval(msgInterval);
+            document.getElementById('errorText').textContent = 'Something went wrong. Please try again.';
+            document.getElementById('errorMsg').classList.remove('d-none');
+            document.getElementById('loadingDiv').classList.add('d-none');
+            document.getElementById('analyzeBtn').disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

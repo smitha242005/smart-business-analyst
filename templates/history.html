@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Smart Business Analyst</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fas fa-chart-line me-2"></i>Smart Business Analyst
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home me-1"></i>Home
+            </a>
+            <a href="/upload" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-upload me-1"></i>New Analysis
+            </a>
+            <span class="text-white small">
+                <i class="fas fa-user me-1"></i>{{ username }}
+            </span>
+            <a href="/logout" class="btn btn-danger btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- History Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">
+                <i class="fas fa-history me-2"></i>Analysis History
+            </h2>
+            <a href="/upload" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>New Analysis
+            </a>
+        </div>
+
+        {% if history %}
+            <!-- Summary Cards -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="kpi-card p-4 text-center">
+                        <div class="kpi-icon mb-2">
+                            <i class="fas fa-database fa-2x"></i>
+                        </div>
+                        <h6 class="text-muted">Total Analyses</h6>
+                        <h3 class="fw-bold kpi-value">{{ history|length }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-card p-4 text-center">
+                        <div class="kpi-icon mb-2">
+                            <i class="fas fa-bullseye fa-2x"></i>
+                        </div>
+                        <h6 class="text-muted">Best Accuracy</h6>
+                        <h3 class="fw-bold kpi-value">
+                            {{ "%.1f"|format(history|map(attribute='accuracy')|max) }}%
+                        </h3>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="kpi-card p-4 text-center">
+                        <div class="kpi-icon mb-2">
+                            <i class="fas fa-rupee-sign fa-2x"></i>
+                        </div>
+                        <h6 class="text-muted">Highest Predicted Sales</h6>
+                        <h3 class="fw-bold kpi-value">
+                            ₹{{ "%.0f"|format(history|map(attribute='predicted_sales')|max) }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="chart-card p-4">
+                <h5 class="fw-bold mb-4">
+                    <i class="fas fa-table me-2"></i>All Analyses
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>File Name</th>
+                                <th>Predicted Sales</th>
+                                <th>Predicted Profit</th>
+                                <th>Accuracy</th>
+                                <th>Date & Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in history %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    <i class="fas fa-file-csv me-2 text-primary"></i>
+                                    {{ record.filename }}
+                                </td>
+                                <td>
+                                    <span class="text-success fw-bold">
+                                        ₹{{ "%.2f"|format(record.predicted_sales) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-info fw-bold">
+                                        ₹{{ "%.2f"|format(record.predicted_profit) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar
+                                                {% if record.accuracy >= 90 %}bg-success
+                                                {% elif record.accuracy >= 75 %}bg-warning
+                                                {% else %}bg-danger{% endif %}"
+                                                style="width: {{ record.accuracy }}%">
+                                            </div>
+                                        </div>
+                                        <span class="small fw-bold">{{ "%.1f"|format(record.accuracy) }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ record.created_at }}
+                                    </small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                        onclick="showRecommendations({{ loop.index0 }})"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#recModal">
+                                        <i class="fas fa-lightbulb me-1"></i>View
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+                    <h4 class="text-muted">No Analysis History Yet</h4>
+                    <p class="text-muted">Upload a dataset to start your first analysis!</p>
+                    <a href="/upload" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-upload me-2"></i>Upload Dataset
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recommendations Modal -->
+<div class="modal fade" id="recModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-lightbulb me-2"></i>AI Business Recommendations
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalRecBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer text-center py-4">
+    <p class="mb-0">© 2025 Smart Business Analyst — Powered by Agentic AI</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const allHistory = {{ history | tojson }};
+
+    function showRecommendations(index) {
+        const record = allHistory[index];
+        const body = document.getElementById('modalRecBody');
+        body.innerHTML = '';
+
+        if (record.recommendations && record.recommendations.length > 0) {
+            record.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'recommendation-item p-3 mb-2';
+                div.textContent = rec;
+                body.appendChild(div);
+            });
+        } else {
+            body.innerHTML = '<p class="text-muted">No recommendations available.</p>';
+        }
+    }
+</script>
+</body>
+</html>

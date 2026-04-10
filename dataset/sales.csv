@@ -1,0 +1,61 @@
+Order Date,Region,Category,Sales,Profit
+2023-01-05,East,Technology,1500,300
+2023-01-10,West,Furniture,800,120
+2023-01-15,South,Office Supplies,450,90
+2023-01-20,North,Technology,2200,440
+2023-01-25,East,Furniture,950,140
+2023-02-03,West,Technology,1800,360
+2023-02-08,South,Furniture,600,80
+2023-02-14,North,Office Supplies,320,60
+2023-02-19,East,Technology,2500,500
+2023-02-24,West,Office Supplies,410,75
+2023-03-02,South,Technology,1900,380
+2023-03-07,North,Furniture,1100,180
+2023-03-12,East,Office Supplies,380,70
+2023-03-17,West,Technology,2800,560
+2023-03-22,South,Furniture,720,100
+2023-04-01,North,Technology,2100,420
+2023-04-06,East,Office Supplies,490,95
+2023-04-11,West,Furniture,880,130
+2023-04-16,South,Technology,1700,340
+2023-04-21,North,Office Supplies,350,65
+2023-05-01,East,Technology,3000,600
+2023-05-06,West,Furniture,950,150
+2023-05-11,South,Office Supplies,420,80
+2023-05-16,North,Technology,2400,480
+2023-05-21,East,Furniture,1050,170
+2023-06-01,West,Technology,2700,540
+2023-06-06,South,Furniture,680,95
+2023-06-11,North,Office Supplies,390,72
+2023-06-16,East,Technology,3200,640
+2023-06-21,West,Office Supplies,445,85
+2023-07-01,South,Technology,2000,400
+2023-07-06,North,Furniture,1200,200
+2023-07-11,East,Office Supplies,410,78
+2023-07-16,West,Technology,2900,580
+2023-07-21,South,Furniture,750,110
+2023-08-01,North,Technology,2300,460
+2023-08-06,East,Office Supplies,470,90
+2023-08-11,West,Furniture,900,140
+2023-08-16,South,Technology,1850,370
+2023-08-21,North,Office Supplies,360,68
+2023-09-01,East,Technology,3100,620
+2023-09-06,West,Furniture,980,160
+2023-09-11,South,Office Supplies,430,82
+2023-09-16,North,Technology,2600,520
+2023-09-21,East,Furniture,1100,180
+2023-10-01,West,Technology,2800,560
+2023-10-06,South,Furniture,700,105
+2023-10-11,North,Office Supplies,400,75
+2023-10-16,East,Technology,3300,660
+2023-10-21,West,Office Supplies,460,88
+2023-11-01,South,Technology,2100,420
+2023-11-06,North,Furniture,1250,210
+2023-11-11,East,Office Supplies,490,93
+2023-11-16,West,Technology,3000,600
+2023-11-21,South,Furniture,780,115
+2023-12-01,North,Technology,2500,500
+2023-12-06,East,Office Supplies,500,95
+2023-12-11,West,Furniture,1000,165
+2023-12-16,South,Technology,1950,390
+2023-12-21,North,Office Supplies,375,70

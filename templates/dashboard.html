@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Business Analyst</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">
+            <i class="fas fa-chart-line me-2"></i>Smart Business Analyst
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home me-1"></i>Home
+            </a>
+            <a href="/upload" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-upload me-1"></i>Upload
+            </a>
+            <a href="/history" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-history me-1"></i>History
+            </a>
+            <span class="text-white small">
+                <i class="fas fa-user me-1"></i>{{ username }}
+            </span>
+            <a href="/logout" class="btn btn-danger btn-sm">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard -->
+<section class="dashboard-section py-4">
+    <div class="container">
+        <h2 class="fw-bold mb-4">
+            <i class="fas fa-tachometer-alt me-2"></i>Analysis Dashboard
+        </h2>
+
+        <!-- KPI Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="kpi-card p-4 text-center">
+                    <div class="kpi-icon mb-2">
+                        <i class="fas fa-rupee-sign fa-2x"></i>
+                    </div>
+                    <h6 class="text-muted">Predicted Next Month Sales</h6>
+                    <h3 class="fw-bold kpi-value" id="predictedSales">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card p-4 text-center">
+                    <div class="kpi-icon mb-2">
+                        <i class="fas fa-coins fa-2x"></i>
+                    </div>
+                    <h6 class="text-muted">Predicted Profit</h6>
+                    <h3 class="fw-bold kpi-value" id="predictedProfit">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card p-4 text-center">
+                    <div class="kpi-icon mb-2">
+                        <i class="fas fa-bullseye fa-2x"></i>
+                    </div>
+                    <h6 class="text-muted">Model Accuracy</h6>
+                    <h3 class="fw-bold kpi-value" id="modelAccuracy">-</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card p-4 text-center">
+                    <div class="kpi-icon mb-2">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <h6 class="text-muted">Mean Absolute Error</h6>
+                    <h3 class="fw-bold kpi-value" id="maeValue">-</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-8">
+                <div class="chart-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-chart-line me-2"></i>Monthly Sales Trend
+                    </h5>
+                    <canvas id="salesTrendChart" height="100"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-map-marker-alt me-2"></i>Region-wise Sales
+                    </h5>
+                    <canvas id="regionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="chart-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-tags me-2"></i>Category-wise Profit
+                    </h5>
+                    <canvas id="categoryChart" height="150"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>AI Business Recommendations
+                    </h5>
+                    <div id="recommendationsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Info -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="chart-card p-4">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Model Performance Metrics
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h6 class="text-muted">R² Score (Accuracy)</h6>
+                            <h4 class="fw-bold text-success" id="r2Score">-</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Mean Absolute Error</h6>
+                            <h4 class="fw-bold text-warning" id="maeScore">-</h4>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-muted">Root Mean Squared Error</h6>
+                            <h4 class="fw-bold text-info" id="rmseScore">-</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View History Button -->
+        <div class="text-center mb-4">
+            <a href="/history" class="btn btn-outline-primary btn-lg px-5">
+                <i class="fas fa-history me-2"></i>View Analysis History
+            </a>
+        </div>
+
+    </div>
+</section>
+
+<footer class="footer text-center py-4">
+    <p class="mb-0">© 2025 Smart Business Analyst — Powered by Agentic AI</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const results = JSON.parse(localStorage.getItem('analysisResults'));
+
+    if (!results) {
+        window.location.href = '/upload';
+    } else {
+        document.getElementById('predictedSales').textContent = '₹' + results.predicted_sales.toLocaleString();
+        document.getElementById('predictedProfit').textContent = '₹' + results.predicted_profit.toLocaleString();
+        document.getElementById('modelAccuracy').textContent = results.accuracy + '%';
+        document.getElementById('maeValue').textContent = results.mae.toLocaleString();
+        document.getElementById('r2Score').textContent = results.accuracy + '%';
+        document.getElementById('maeScore').textContent = results.mae.toLocaleString();
+        document.getElementById('rmseScore').textContent = results.rmse.toLocaleString();
+
+        const chartData = results.chart_data;
+
+        // Monthly Sales Trend Chart
+        if (chartData.monthly_labels && chartData.monthly_sales) {
+            const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const labels = chartData.monthly_labels.map(m => monthNames[m-1] || m);
+            new Chart(document.getElementById('salesTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        data: chartData.monthly_sales,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78,115,223,0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4e73df',
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Region Chart
+        if (chartData.region_labels && chartData.region_sales) {
+            new Chart(document.getElementById('regionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.region_labels,
+                    datasets: [{
+                        data: chartData.region_sales,
+                        backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // Category Chart
+        if (chartData.category_labels && chartData.category_profit) {
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: chartData.category_labels,
+                    datasets: [{
+                        label: 'Profit',
+                        data: chartData.category_profit,
+                        backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // Recommendations
+        const recList = document.getElementById('recommendationsList');
+        if (results.recommendations && results.recommendations.length > 0) {
+            results.recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'recommendation-item p-2 mb-2';
+                div.textContent = rec;
+                recList.appendChild(div);
+            });
+        }
+    }
+</script>
+</body>
+</html>
